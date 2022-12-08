@@ -55,7 +55,6 @@ BEGIN
     POPUP "File"
     BEGIN
         MENUITEM "Controls",                    ID_FILE_CONTROLS
-        MENUITEM "Pause",                       ID_FILE_PAUSE
         MENUITEM "Exit",                        ID_FILE_EXIT
     END
     POPUP "About"

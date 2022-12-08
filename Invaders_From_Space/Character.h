@@ -14,18 +14,15 @@ public:
 	virtual void Update(float DeltaTime) override;
 	virtual void ProcessInput(Input* UserInput) override {}
 
-	// this will add force to the character based on the force provided and max speed
-	void AddForce(float Force, Vector2 Direction);
+	void SetMovementAxis(Vector2 Axis);
 
-protected:
+	void SetMaxSpeed();
+
 	float MaxSpeed;
 
-	void SetMovementAxis(Vector2 Axis);
 	Vector2 GetMovementAxis();
 
-	// should slow down the velocity of the player over time
-	// set between 0 and 1
-	float Drag;
+protected:
 
 private:
 	// Velocity is the true representation of speed, this will have an x and y value
@@ -33,7 +30,5 @@ private:
 	// This is going to detect input and move out character based on it's direction
 	// make sure the number is normally between 0 and 1
 	Vector2 MovementAxis;
-	// This will accelerate our velocity using force
-	Vector2 Acceleration;
 };
 

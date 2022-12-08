@@ -47,7 +47,6 @@ void Collider::Update(float DeltaTime, vector<Collider*>& OtherColliders)
 				vector<Collider*>::iterator it = find(OverlappedColliders.begin(), OverlappedColliders.end(), OtherColliders[i]);
 				if (it == OverlappedColliders.end()) {
 					OverlappedColliders.push_back(OtherColliders[i]);
-					SDL_Log("Entered Collider");
 				}
 			}
 			else {
@@ -56,7 +55,6 @@ void Collider::Update(float DeltaTime, vector<Collider*>& OtherColliders)
 				// if it is then remove it from the array
 				if (it < OverlappedColliders.end()) {
 					OverlappedColliders.erase(it);
-					SDL_Log("Exited Collider");
 				}
 			}
 		}

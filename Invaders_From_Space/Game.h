@@ -31,6 +31,10 @@ public:
 	// score that remains over states
 	int Score;
 
+	bool bIsGamePaused;
+
+	float GameTimer;
+
 private:
 	// these need to be private so we can't create non-instance versions of the game instance
 	//constructor

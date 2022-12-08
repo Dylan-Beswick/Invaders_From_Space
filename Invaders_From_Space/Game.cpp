@@ -10,6 +10,7 @@
 #include "BufferState.h"
 #include "SplashScreen1.h"
 #include "SplashScreen2.h"
+#include "SplashScreen3.h"
 
 using namespace std;
 
@@ -42,6 +43,8 @@ Game::Game()
 	LastUpdateTime = 0.0f;
 	UserInput = nullptr;
 	Score = 0;
+	bIsGamePaused = false;
+	GameTimer = 0.0f;
 
 	//Initialise the subsystem in the SDL2 Framework
 	if (SDL_InitSubSystem(SDL_INIT_EVERYTHING) != 0) {
@@ -160,11 +163,17 @@ void Game::Update()
 	// change the tick to seconds
 	float DeltaTime = tick / 1000.0f;
 
-	// Refresh the last update time
-	LastUpdateTime = SDL_GetTicks();
+	if (!bIsGamePaused) {
+		GameTimer += DeltaTime;
+
+		// Refresh the last update time
+		LastUpdateTime = SDL_GetTicks();
+
+		GameStates.back()->Update(DeltaTime);
+	}
 
 	// 1000ms per second
-	if (SDL_GetTicks() > 1500) {
+	if (GameTimer > 1.5f) {
 		if (GameStates.back()->StateID == 0) {
 			// telling the state it's exited
 			GameStates.back()->OnExit();
@@ -183,7 +192,7 @@ void Game::Update()
 			GameStates.push_back(NewSplash1Screen);
 		}
 	}
-	if (SDL_GetTicks() > 4500) {
+	if (GameTimer > 4.5f) {
 		if (GameStates.back()->StateID == 1) {
 			// telling the state it's exited
 			GameStates.back()->OnExit();
@@ -195,15 +204,15 @@ void Game::Update()
 			// create a new play state
 			BufferState* NewBufferState = new BufferState();
 			// change the ID so this if condition doesn't run again
-			NewBufferState->StateID = 0;
+			NewBufferState->StateID = 2;
 			// Tell the GameState its stated
 			NewBufferState->OnEnter(SdlRenderer[0], SdlWindow[0]);
 			// add it to the GameState Stack
 			GameStates.push_back(NewBufferState);
 		}
 	}
-	if (SDL_GetTicks() > 6000) {
-		if (GameStates.back()->StateID == 0) {
+	if (GameTimer > 6.0f) {
+		if (GameStates.back()->StateID == 2) {
 			// telling the state it's exited
 			GameStates.back()->OnExit();
 			// deallocate the state from memory
@@ -214,15 +223,15 @@ void Game::Update()
 			// create a new play state
 			SplashScreen2* NewSplash2Screen = new SplashScreen2();
 			// change the ID so this if condition doesn't run again
-			NewSplash2Screen->StateID = 2;
+			NewSplash2Screen->StateID = 3;
 			// Tell the GameState its stated
 			NewSplash2Screen->OnEnter(SdlRenderer[0], SdlWindow[0]);
 			// add it to the GameState Stack
 			GameStates.push_back(NewSplash2Screen);
 		}
 	}
-	if (SDL_GetTicks() > 9000) {
-		if (GameStates.back()->StateID == 2) {
+	if (GameTimer > 9.0f) {
+		if (GameStates.back()->StateID == 3) {
 			// telling the state it's exited
 			GameStates.back()->OnExit();
 			// deallocate the state from memory
@@ -233,15 +242,53 @@ void Game::Update()
 			// create a new play state
 			BufferState* NewBufferState = new BufferState();
 			// change the ID so this if condition doesn't run again
-			NewBufferState->StateID = 0;
+			NewBufferState->StateID = 4;
 			// Tell the GameState its stated
 			NewBufferState->OnEnter(SdlRenderer[0], SdlWindow[0]);
 			// add it to the GameState Stack
 			GameStates.push_back(NewBufferState);
 		}
 	}
-	if (SDL_GetTicks() > 10500) {
-		if (GameStates.back()->StateID == 0) {
+	if (GameTimer > 10.5f) {
+		if (GameStates.back()->StateID == 4) {
+			// telling the state it's exited
+			GameStates.back()->OnExit();
+			// deallocate the state from memory
+			delete GameStates.back();
+			// reduce the size of the vector
+			GameStates.pop_back();
+
+			// create a new play state
+			SplashScreen3* NewSplash3Screen = new SplashScreen3();
+			// change the ID so this if condition doesn't run again
+			NewSplash3Screen->StateID = 5;
+			// Tell the GameState its stated
+			NewSplash3Screen->OnEnter(SdlRenderer[0], SdlWindow[0]);
+			// add it to the GameState Stack
+			GameStates.push_back(NewSplash3Screen);
+		}
+	}
+	if (GameTimer > 13.5f) {
+		if (GameStates.back()->StateID == 5) {
+			// telling the state it's exited
+			GameStates.back()->OnExit();
+			// deallocate the state from memory
+			delete GameStates.back();
+			// reduce the size of the vector
+			GameStates.pop_back();
+
+			// create a new play state
+			BufferState* NewBufferState = new BufferState();
+			// change the ID so this if condition doesn't run again
+			NewBufferState->StateID = 6;
+			// Tell the GameState its stated
+			NewBufferState->OnEnter(SdlRenderer[0], SdlWindow[0]);
+			// add it to the GameState Stack
+			GameStates.push_back(NewBufferState);
+		}
+	}
+	if (GameTimer > 15.0f) {
+		if (GameStates.back()->StateID == 6) {
 			// telling the state it's exited
 			GameStates.back()->OnExit();
 			// deallocate the state from memory
@@ -252,17 +299,13 @@ void Game::Update()
 			// create a new play state
 			MenuState* NewMenuState = new MenuState();
 			// change the ID so this if condition doesn't run again
-			NewMenuState->StateID = 3;
+			NewMenuState->StateID = 7;
 			// Tell the GameState its stated
 			NewMenuState->OnEnter(SdlRenderer[0], SdlWindow[0]);
 			// add it to the GameState Stack
 			GameStates.push_back(NewMenuState);
 		}
 	}
-
-
-	// run the gamestate update
-	GameStates.back()->Update(DeltaTime);
 }
 
 void Game::Draw()

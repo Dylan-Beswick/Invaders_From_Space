@@ -14,14 +14,14 @@ LossZone::LossZone(Vector2 Position, Vector2 Dimensions)
 void LossZone::Update(float DeltaTime)
 {
 	// Get overlapped colliders from the first collision
-	vector<Collider*> OverCols = Collisions[0]->GetOverlappingColliders();
+	vector<Collider*> LossCols = Collisions[0]->GetOverlappingColliders();
 
 	// loop through the overlapped colliders and check if the player is within them
-	// if so change the state to the menu state
-	for (vector<Collider*>::iterator Col = OverCols.begin(); Col < OverCols.end(); Col++) {
-		if ((*Col)->GetOwner()->Tag == "Player") {
+	// if so change the state to the Loss state
+	for (vector<Collider*>::iterator Col = LossCols.begin(); Col < LossCols.end(); Col++) {
+		if ((*Col)->GetOwner()->Tag == "Enemy") {
 			GSLoss* NewState = new GSLoss;
-			Game::GetGameInstance()->ChangeGameState(NewState, 5);
+			Game::GetGameInstance()->ChangeGameState(NewState, 9);
 		}
 	}
 }

@@ -71,15 +71,7 @@ void Input::HandleMenuEvents(SDL_Event* Event, vector<SDL_Window*> SdlWindows, b
 	// Detect a menu button was pressed
 	switch (Event->syswm.msg->msg.win.wParam) {
 	case ID_FILE_CONTROLS: // If we push the controls button
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "CONTROLS:", "Left - 'A'/'Left Arrow' \nRight - 'D'/'Right Arrow' \nShoot - 'W'/'Space Bar'", SdlWindows[0]);
-		break;
-	case ID_FILE_PAUSE: // If we push the pause button
-		if (!IsGamePaused) {
-			system("pause"); // kills program
-		}
-		else {
-			system("unpause"); // doesn't work
-		}
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "CONTROLS:", "Left - 'A'/'Left Arrow' \nRight - 'D'/'Right Arrow' \nShoot - 'W'/'Space Bar' \nPause Game - ESC \nUnpause Game - ` (GRAVE)", SdlWindows[0]);
 		break;
 	case ID_FILE_EXIT: // if we push the exit game button
 		bIsGameOver = true; // end the game/program

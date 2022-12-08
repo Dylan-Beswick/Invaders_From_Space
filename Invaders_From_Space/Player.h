@@ -11,5 +11,9 @@ public:
 
     void Update(float DeltaTime) override;
     void ProcessInput(Input* UserInput) override;
+    void SetSpeed(float Speed);
+
+private:
+    float Speed;
 };
 

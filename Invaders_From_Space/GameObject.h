@@ -22,7 +22,7 @@ public:
 	virtual void ProcessInput(Input* UserInput) {}
 
 	// this is going to create a collision for the game object
-	void SetCollision(Vector2 Position = Vector2().Zero(), Vector2 HalfDimensions = Vector2(1.0f, 1.0f), bool ShouldDebug = true);
+	void SetCollision(Vector2 Position = Vector2().Zero(), Vector2 HalfDimensions = Vector2(1.0f, 1.0f), bool ShouldDebug = false);
 
 	// this will change the width and height of the collider
 	void SetCollisionDimensions(Collider* Collision, Vector2 HalfDimensions);

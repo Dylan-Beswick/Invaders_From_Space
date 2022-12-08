@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="Barrier.cpp" />
     <ClCompile Include="BufferState.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="Collectable.cpp" />
@@ -166,15 +167,19 @@
     <ClCompile Include="MenuState.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayState.cpp" />
+    <ClCompile Include="LeftBorder.cpp" />
+    <ClCompile Include="RightBorder.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="SplashScreen1.cpp" />
     <ClCompile Include="SplashScreen2.cpp" />
+    <ClCompile Include="SplashScreen3.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Vector2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="Barrier.h" />
     <ClInclude Include="BufferState.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="Collectable.h" />
@@ -190,8 +195,11 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayState.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="LeftBorder.h" />
+    <ClInclude Include="RightBorder.h" />
     <ClInclude Include="SplashScreen1.h" />
     <ClInclude Include="SplashScreen2.h" />
+    <ClInclude Include="SplashScreen3.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Vector2.h" />

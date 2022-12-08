@@ -6,7 +6,6 @@ Player::Player(Texture* CharacterTexture, Vector2 Pos, int NumberOfFrames)
 	: Character::Character(CharacterTexture, Pos, NumberOfFrames)
 {
 	Tag = "Player";
-	MaxSpeed = 600;
 }
 
 Player::~Player()
@@ -25,29 +24,31 @@ void Player::ProcessInput(Input* UserInput)
 {
 	float MovementX = 0.0f;
 	float MovementY = 0.0f;
-	float Speed = 2000.0f;
-
-	// check if W key is down
-	if (UserInput->IsKeyDown(SDL_SCANCODE_W)) {
-		MovementY = -1.0f;
-	}
-
-	// check if S key is down
-	if (UserInput->IsKeyDown(SDL_SCANCODE_S)) {
-		MovementY = 1.0f;
-	}
+	float Speed = 0.0f;
 
 	// check if A key is down
 	if (UserInput->IsKeyDown(SDL_SCANCODE_A)) {
+		Speed = 1000.0f;
+		MovementX = -1.0f;
+	}
+
+	// check if Left Arrow is down
+	if (UserInput->IsKeyDown(SDL_SCANCODE_LEFT)) {
+		Speed = 1000.0f;
 		MovementX = -1.0f;
 	}
 
 	// check if D key is down
 	if (UserInput->IsKeyDown(SDL_SCANCODE_D)) {
+		Speed = 1000.0f;
 		MovementX = 1.0f;
 	}
 
-	AddForce(Speed, Vector2(MovementX, MovementY));
+	// check if Right Arrow is down
+	if (UserInput->IsKeyDown(SDL_SCANCODE_RIGHT)) {
+		Speed = 1000.0f;
+		MovementX = 1.0f;
+	}
 
 	// store the colliders overlapping out collider
 	vector<Collider*> OtherColliders = GetCollisions()[0]->GetOverlappingColliders();
@@ -69,4 +70,11 @@ void Player::ProcessInput(Input* UserInput)
 			(*it)->GetOwner()->DestroyGameObject();
 		}
 	}
+
+	SetMovementAxis(Vector2(MovementX, MovementY));
+}
+
+void Player::SetSpeed(float Speed)
+{
+	this->Speed = Speed;
 }

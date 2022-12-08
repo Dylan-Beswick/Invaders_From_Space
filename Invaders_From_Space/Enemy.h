@@ -10,5 +10,12 @@ public:
     ~Enemy();
 
     void Update(float DeltaTime) override;
+
+    int SetEnemyCount(int EnemyCount);
+
+    int EnemyCount;
+
+    Vector2 Direction;
+
 };
 

@@ -2,6 +2,7 @@
 #include "GameState.h"
 #include "Player.h"
 #include "Text.h"
+#include "Enemy.h"
 #include "SDL_mixer.h"
 
 class PlayState :
@@ -12,7 +13,7 @@ public:
 
 	virtual void Update(float DeltaTime) override;
 	virtual void Draw(SDL_Renderer* Renderer) override;
-	virtual void ProcessInput(Input* UserInput) override { GameState::ProcessInput(UserInput); }
+	virtual void ProcessInput(Input* UserInput) override;
 
 	virtual bool OnEnter(SDL_Renderer* Renderer, SDL_Window* Window) override;
 	virtual bool OnExit() override;
