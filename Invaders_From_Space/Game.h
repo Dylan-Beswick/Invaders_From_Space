@@ -6,6 +6,8 @@
 #include "Animation.h"
 #include "GameObject.h"
 #include "Character.h"
+#include "Player.h"
+#include "Enemy.h"
 #include <iostream>
 #include <vector>
 #include "Input.h"
@@ -34,6 +36,9 @@ public:
 	bool bIsGamePaused;
 
 	float GameTimer;
+
+	Player* PChara;
+	Enemy* EChara;
 
 private:
 	// these need to be private so we can't create non-instance versions of the game instance

@@ -14,9 +14,5 @@ public:
 private:
     float Speed;
 
-    Player* PChara;
-
-    Enemy* EChara;
-
     float DownTime;
 }

@@ -45,6 +45,8 @@ Game::Game()
 	Score = 0;
 	bIsGamePaused = false;
 	GameTimer = 0.0f;
+	PChara = nullptr;
+	EChara = nullptr;
 
 	//Initialise the subsystem in the SDL2 Framework
 	if (SDL_InitSubSystem(SDL_INIT_EVERYTHING) != 0) {

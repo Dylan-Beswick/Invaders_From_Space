@@ -12,7 +12,7 @@ PlayState::PlayState()
 {
 	DBColour = { 0, 0, 50, 255 };
 	TXT_PPosition = nullptr;
-	PChar = nullptr;
+	PChar = Game::GetGameInstance()->PChara;
 	Music_BG = nullptr;
 	TXT_Score = nullptr;
 }
