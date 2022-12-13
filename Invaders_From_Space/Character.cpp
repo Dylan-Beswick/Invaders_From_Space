@@ -18,6 +18,7 @@ Character::Character(Texture* CharacterTexture, Vector2 Pos, int NumberOfFrames)
 	float w = 10.0f;
 	float h = 10.0f;
 	Tag = "Character";
+	PFireRate = 1.5f;
 
 	// if we have a texture then update the width and height based on the texture
 	if (ObjectTexture != nullptr) {
@@ -55,14 +56,14 @@ void Character::Update(float DeltaTime)
 	Position += Velocity * DeltaTime;
 }
 
-void Character::SetMaxSpeed()
-{
-	this->MaxSpeed = 0.0f;
-}
-
 void Character::SetMovementAxis(Vector2 Axis)
 {
 	MovementAxis = Axis;
+}
+
+void Character::SetMaxSpeed(float Speed)
+{
+	this->MaxSpeed = Speed;
 }
 
 Vector2 Character::GetMovementAxis()

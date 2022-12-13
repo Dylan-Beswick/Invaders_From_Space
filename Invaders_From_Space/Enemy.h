@@ -11,11 +11,16 @@ public:
 
     void Update(float DeltaTime) override;
 
+    int SetDirection(int Direction);
+
     int SetEnemyCount(int EnemyCount);
 
     int EnemyCount;
 
-    Vector2 Direction;
+    float DownTime;
 
+    int Direction;
+
+    bool DirFlip;
 };
 

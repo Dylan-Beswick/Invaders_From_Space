@@ -16,9 +16,11 @@ public:
 
 	void SetMovementAxis(Vector2 Axis);
 
-	void SetMaxSpeed();
+	void SetMaxSpeed(float Speed);
 
 	float MaxSpeed;
+
+	float PFireRate;
 
 	Vector2 GetMovementAxis();
 

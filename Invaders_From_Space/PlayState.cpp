@@ -7,17 +7,22 @@
 #include "Game.h"
 #include "LeftBorder.h"
 #include "RightBorder.h"
+#include "PlayerBullet.h"
+#include "EnemyBullet.h"
 
 PlayState::PlayState()
 {
 	DBColour = { 0, 0, 50, 255 };
 	TXT_PPosition = nullptr;
-	PChar = Game::GetGameInstance()->PChara;
+	PChar = nullptr;
+	EChar = nullptr;
+	BChar = nullptr;
 	Music_BG = nullptr;
 	TXT_Score = nullptr;
+	Player::bPlayerFire = false;
 }
 
-void PlayState::Update(float DeltaTime)
+void PlayState::Update(float DeltaTime, SDL_Renderer* Renderer)
 {
 	GameState::Update(DeltaTime);
 
@@ -25,17 +30,27 @@ void PlayState::Update(float DeltaTime)
 	if (PChar != nullptr) {
 		// initialise some integers to use for concatenation
 		// use integers so that we don't display decimals
-		int PlayerX = 0;
+		int BulletX = 0;
+		int BulletY = 0;
 		float PlayerSpeed = 0.0f;
 
 		// set the x and y to the players position
 		// convert the floats into ingegers
-		PlayerX = static_cast<int>(PChar->GetPosition().x);
+		BulletX = static_cast<int>(PChar->GetPosition().x) + 7;
+		BulletY = static_cast<int>(PChar->GetPosition().y) - 18;
 
-		/*if (PlayerX <= 128) {
-			PChar->SetMaxSpeed();
-			PChar->SetMovementAxis(Vector2(0.0f, 0.0f));
-		} - neither cause any effect*/
+		// when the Player has clicked the fire button, spawn a bullet entity
+		if (Player::bPlayerFire) {
+			//initiallised the Bullet texture
+			Texture* PBulletImage = new Texture();
+			// load the Bullet texture
+			PBulletImage->LoadImageFromFile("Assets/pBullet.png", Renderer);
+			// construct the Bullet as a character
+			PlayerBullet* PlayBullet = new PlayerBullet(PBulletImage, Vector2(BulletX, BulletY), 1);
+			GameObjectStack.push_back(PlayBullet);
+
+			Player::bPlayerFire = false;
+		}
 
 	}
 }
@@ -53,12 +68,14 @@ void PlayState::ProcessInput(Input* UserInput)
 {
 	GameState::ProcessInput(UserInput);
 
+	// when the Player clicks "ESCAPE", pause the game
 	if (UserInput->IsKeyDown(SDL_SCANCODE_ESCAPE)) {
 			Game::GetGameInstance()->bIsGamePaused = true;
-		}
+	}
+	// when the Player clicks "GRAVE" (key above "TAB"), resume the game
 	else if (UserInput->IsKeyDown(SDL_SCANCODE_GRAVE)) {
 			Game::GetGameInstance()->bIsGamePaused = false;
-		}
+	}
 }
 
 bool PlayState::OnEnter(SDL_Renderer* Renderer, SDL_Window* Window)
@@ -67,520 +84,256 @@ bool PlayState::OnEnter(SDL_Renderer* Renderer, SDL_Window* Window)
 
 	SDL_Log("Entered PlayState...");
 
+	//initiallised the Background texture
+	Texture* BackgroundImage = new Texture();
+	// load the Background texture
+	BackgroundImage->LoadImageFromFile("Assets/PlayBackground.png", Renderer);
+	// construct the Background as a character
+	Character* Background = new Character(BackgroundImage, Vector2(0, 0), 1);
+	GameObjectStack.push_back(Background);
+
+	//initiallised the Background texture
+	Texture* PBulletImage = new Texture();
+	// load the Background texture
+	PBulletImage->LoadImageFromFile("Assets/pBullet.png", Renderer);
+	// construct the Background as a character
+	PlayerBullet* PlayBullet = new PlayerBullet(PBulletImage, Vector2(270, 458), 1);
+	GameObjectStack.push_back(PlayBullet);
+
+	//initiallised the Background texture
+	Texture* EBulletImage = new Texture();
+	// load the Background texture
+	EBulletImage->LoadImageFromFile("Assets/eBullet.png", Renderer);
+	// construct the Background as a character
+	EnemyBullet* EnBullet = new EnemyBullet(EBulletImage, Vector2(166, 198), 1);
+	GameObjectStack.push_back(EnBullet);
+
 	//initiallised the player texture
 	Texture* PlayerTexture = new Texture();
 	// load the player texture
-	PlayerTexture->LoadImageFromFile("Assets/player-spritesheet-32x32-22.png", Renderer);
+	PlayerTexture->LoadImageFromFile("Assets/player.png", Renderer);
 	// construct the player as a character
-	PChar = new Player(PlayerTexture, Vector2(256, 512), 22);
+	PChar = new Player(PlayerTexture, Vector2(263, 566), 1);
 	GameObjectStack.push_back(PChar);
 
 	//initiallised the barrier texture
 	Texture* BarrierTexture = new Texture();
 	// load the Barrier texture
-	BarrierTexture->LoadImageFromFile("Assets/barrier-spritesheet-32x32-5.png", Renderer);
+	BarrierTexture->LoadImageFromFile("Assets/barrier4.png", Renderer);
 	// construct the Barrier as a entity
-	Barrier* Barrier1 = new Barrier(BarrierTexture, Vector2(32, 471), 5);
-	GameObjectStack.push_back(Barrier1);
+	BChar = new Barrier(BarrierTexture, Vector2(51, 502), 1);
+	GameObjectStack.push_back(BChar);
+	
+	//initiallised the barrier texture
+	BarrierTexture = new Texture();
+	// load the Barrier texture
+	BarrierTexture->LoadImageFromFile("Assets/barrier2.png", Renderer);
+	// construct the Barrier as a entity
+	BChar = new Barrier(BarrierTexture, Vector2(155, 490), 1);
+	GameObjectStack.push_back(BChar);
 
 	//initiallised the barrier texture
 	BarrierTexture = new Texture();
 	// load the Barrier texture
-	BarrierTexture->LoadImageFromFile("Assets/barrier-spritesheet-32x32-5.png", Renderer);
+	BarrierTexture->LoadImageFromFile("Assets/barrier1.png", Renderer);
 	// construct the Barrier as a entity
-	Barrier* Barrier2 = new Barrier(BarrierTexture, Vector2(98, 471), 5);
-	GameObjectStack.push_back(Barrier2);
+	BChar = new Barrier(BarrierTexture, Vector2(259, 490), 1);
+	GameObjectStack.push_back(BChar);
 
 	//initiallised the barrier texture
 	BarrierTexture = new Texture();
 	// load the Barrier texture
-	BarrierTexture->LoadImageFromFile("Assets/barrier-spritesheet-32x32-5.png", Renderer);
+	BarrierTexture->LoadImageFromFile("Assets/barrier3.png", Renderer);
 	// construct the Barrier as a entity
-	Barrier* Barrier3 = new Barrier(BarrierTexture, Vector2(162, 471), 5);
-	GameObjectStack.push_back(Barrier3);
+	BChar = new Barrier(BarrierTexture, Vector2(363, 494), 1);
+	GameObjectStack.push_back(BChar);
 
 	//initiallised the barrier texture
 	BarrierTexture = new Texture();
 	// load the Barrier texture
-	BarrierTexture->LoadImageFromFile("Assets/barrier-spritesheet-32x32-5.png", Renderer);
+	BarrierTexture->LoadImageFromFile("Assets/barrier5.png", Renderer);
 	// construct the Barrier as a entity
-	Barrier* Barrier4 = new Barrier(BarrierTexture, Vector2(226, 471), 5);
-	GameObjectStack.push_back(Barrier4);
-
-	//initiallised the barrier texture
-	BarrierTexture = new Texture();
-	// load the Barrier texture
-	BarrierTexture->LoadImageFromFile("Assets/barrier-spritesheet-32x32-5.png", Renderer);
-	// construct the Barrier as a entity
-	Barrier* Barrier5 = new Barrier(BarrierTexture, Vector2(290, 471), 5);
-	GameObjectStack.push_back(Barrier5);
-
-	//initiallised the barrier texture
-	BarrierTexture = new Texture();
-	// load the Barrier texture
-	BarrierTexture->LoadImageFromFile("Assets/barrier-spritesheet-32x32-5.png", Renderer);
-	// construct the Barrier as a entity
-	Barrier* Barrier6 = new Barrier(BarrierTexture, Vector2(354, 471), 5);
-	GameObjectStack.push_back(Barrier6);
-
-	//initiallised the barrier texture
-	BarrierTexture = new Texture();
-	// load the Barrier texture
-	BarrierTexture->LoadImageFromFile("Assets/barrier-spritesheet-32x32-5.png", Renderer);
-	// construct the Barrier as a entity
-	Barrier* Barrier7 = new Barrier(BarrierTexture, Vector2(418, 471), 5);
-	GameObjectStack.push_back(Barrier7);
-
-	//initiallised the barrier texture
-	BarrierTexture = new Texture();
-	// load the Barrier texture
-	BarrierTexture->LoadImageFromFile("Assets/barrier-spritesheet-32x32-5.png", Renderer);
-	// construct the Barrier as a entity
-	Barrier* Barrier8 = new Barrier(BarrierTexture, Vector2(482, 471), 5);
-	GameObjectStack.push_back(Barrier8);
-
-	//initiallised the barrier texture
-	BarrierTexture = new Texture();
-	// load the Barrier texture
-	BarrierTexture->LoadImageFromFile("Assets/barrier-spritesheet-32x32-5.png", Renderer);
-	// construct the Barrier as a entity
-	Barrier* Barrier9 = new Barrier(BarrierTexture, Vector2(546, 471), 5);
-	GameObjectStack.push_back(Barrier9);
-
-	//initiallised the barrier texture
-	BarrierTexture = new Texture();
-	// load the Barrier texture
-	BarrierTexture->LoadImageFromFile("Assets/barrier-spritesheet-32x32-5.png", Renderer);
-	// construct the Barrier as a entity
-	Barrier* Barrier10 = new Barrier(BarrierTexture, Vector2(610, 471), 5);
-	GameObjectStack.push_back(Barrier10);
+	BChar = new Barrier(BarrierTexture, Vector2(475, 512), 1);
+	GameObjectStack.push_back(BChar);
 
 	//initiallised the enemy texture
 	Texture* EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-// construct the second enemy as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter1a = new Enemy(EnemyTexture, Vector2(64, 32), 22);
-	GameObjectStack.push_back(EnemyCharacter1a);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
+	// construct the second enemy as an Enemy using the same enemy texture
+	EChar = new Enemy(EnemyTexture, Vector2(71, 71), 1);
+	GameObjectStack.push_back(EChar);
 	
 	//initiallised the enemy texture
 	EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
 	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter2a = new Enemy(EnemyTexture, Vector2(96, 32), 22);
-	GameObjectStack.push_back(EnemyCharacter2a);
+	EChar = new Enemy(EnemyTexture, Vector2(135, 71), 1);
+	GameObjectStack.push_back(EChar);
 
 	//initiallised the enemy texture
 	EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
 	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter3a = new Enemy(EnemyTexture, Vector2(128, 32), 22);
-	GameObjectStack.push_back(EnemyCharacter3a);
+	EChar = new Enemy(EnemyTexture, Vector2(199, 71), 1);
+	GameObjectStack.push_back(EChar);
 
 	//initiallised the enemy texture
 	EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
 	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter4a = new Enemy(EnemyTexture, Vector2(160, 32), 22);
-	GameObjectStack.push_back(EnemyCharacter4a);
+	EChar = new Enemy(EnemyTexture, Vector2(263, 71), 1);
+	GameObjectStack.push_back(EChar);
 
 	//initiallised the enemy texture
 	EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
 	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter5a = new Enemy(EnemyTexture, Vector2(192, 32), 22);
-	GameObjectStack.push_back(EnemyCharacter5a);
+	EChar = new Enemy(EnemyTexture, Vector2(327, 71), 1);
+	GameObjectStack.push_back(EChar);
 
 	//initiallised the enemy texture
 	EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
 	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter6a = new Enemy(EnemyTexture, Vector2(224, 32), 22);
-	GameObjectStack.push_back(EnemyCharacter6a);
+	EChar = new Enemy(EnemyTexture, Vector2(391, 71), 1);
+	GameObjectStack.push_back(EChar);
 
 	//initiallised the enemy texture
 	EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
 	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter7a = new Enemy(EnemyTexture, Vector2(256, 32), 22);
-	GameObjectStack.push_back(EnemyCharacter7a);
+	EChar = new Enemy(EnemyTexture, Vector2(465, 71), 1);
+	GameObjectStack.push_back(EChar);
 
 	//initiallised the enemy texture
 	EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
+	// construct the second enemy as an Enemy using the same enemy texture
+	EChar = new Enemy(EnemyTexture, Vector2(71, 112), 1);
+	GameObjectStack.push_back(EChar);
+	
+	//initiallised the enemy texture
+	EnemyTexture = new Texture();
+	// load the enemy texture
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
 	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter8a = new Enemy(EnemyTexture, Vector2(288, 32), 22);
-	GameObjectStack.push_back(EnemyCharacter8a);
+	EChar = new Enemy(EnemyTexture, Vector2(135, 112), 1);
+	GameObjectStack.push_back(EChar);
 
 	//initiallised the enemy texture
 	EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
 	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter9a = new Enemy(EnemyTexture, Vector2(320, 32), 22);
-	GameObjectStack.push_back(EnemyCharacter9a);
+	EChar = new Enemy(EnemyTexture, Vector2(199, 112), 1);
+	GameObjectStack.push_back(EChar);
 
 	//initiallised the enemy texture
 	EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
 	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter10a = new Enemy(EnemyTexture, Vector2(352, 32), 22);
-	GameObjectStack.push_back(EnemyCharacter10a);
+	EChar = new Enemy(EnemyTexture, Vector2(263, 112), 1);
+	GameObjectStack.push_back(EChar);
 
 	//initiallised the enemy texture
 	EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
 	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter11a = new Enemy(EnemyTexture, Vector2(384, 32), 22);
-	GameObjectStack.push_back(EnemyCharacter11a);
+	EChar = new Enemy(EnemyTexture, Vector2(327, 112), 1);
+	GameObjectStack.push_back(EChar);
 
 	//initiallised the enemy texture
 	EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
 	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter12a = new Enemy(EnemyTexture, Vector2(416, 32), 22);
-	GameObjectStack.push_back(EnemyCharacter12a);
+	EChar = new Enemy(EnemyTexture, Vector2(391, 112), 1);
+	GameObjectStack.push_back(EChar);
 
 	//initiallised the enemy texture
 	EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
 	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter13a = new Enemy(EnemyTexture, Vector2(448, 32), 22);
-	GameObjectStack.push_back(EnemyCharacter13a);
+	EChar = new Enemy(EnemyTexture, Vector2(465, 112), 1);
+	GameObjectStack.push_back(EChar);
+	
+	//initiallised the enemy texture
+	EnemyTexture = new Texture();
+	// load the enemy texture
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
+	// construct the second enemy as an Enemy using the same enemy texture
+	EChar = new Enemy(EnemyTexture, Vector2(71, 176), 1);
+	GameObjectStack.push_back(EChar);
 
 	//initiallised the enemy texture
 	EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
 	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter1b = new Enemy(EnemyTexture, Vector2(64, 96), 22);
-	GameObjectStack.push_back(EnemyCharacter1b);
+	EChar = new Enemy(EnemyTexture, Vector2(135, 176), 1);
+	GameObjectStack.push_back(EChar);
 
 	//initiallised the enemy texture
 	EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
 	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter2b = new Enemy(EnemyTexture, Vector2(96, 96), 22);
-	GameObjectStack.push_back(EnemyCharacter2b);
+	EChar = new Enemy(EnemyTexture, Vector2(199, 176), 1);
+	GameObjectStack.push_back(EChar);
 
 	//initiallised the enemy texture
 	EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
 	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter3b = new Enemy(EnemyTexture, Vector2(128, 96), 22);
-	GameObjectStack.push_back(EnemyCharacter3b);
+	EChar = new Enemy(EnemyTexture, Vector2(263, 176), 1);
+	GameObjectStack.push_back(EChar);
 
 	//initiallised the enemy texture
 	EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
 	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter4b = new Enemy(EnemyTexture, Vector2(160, 96), 22);
-	GameObjectStack.push_back(EnemyCharacter4b);
+	EChar = new Enemy(EnemyTexture, Vector2(327, 176), 1);
+	GameObjectStack.push_back(EChar);
 
 	//initiallised the enemy texture
 	EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
 	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter5b = new Enemy(EnemyTexture, Vector2(192, 96), 22);
-	GameObjectStack.push_back(EnemyCharacter5b);
+	EChar = new Enemy(EnemyTexture, Vector2(391, 176), 1);
+	GameObjectStack.push_back(EChar);
 
 	//initiallised the enemy texture
 	EnemyTexture = new Texture();
 	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
+	EnemyTexture->LoadImageFromFile("Assets/enemy.png", Renderer);
 	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter6b = new Enemy(EnemyTexture, Vector2(224, 96), 22);
-	GameObjectStack.push_back(EnemyCharacter6b);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter7b = new Enemy(EnemyTexture, Vector2(256, 96), 22);
-	GameObjectStack.push_back(EnemyCharacter7b);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter8b = new Enemy(EnemyTexture, Vector2(288, 96), 22);
-	GameObjectStack.push_back(EnemyCharacter8b);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter9b = new Enemy(EnemyTexture, Vector2(320, 96), 22);
-	GameObjectStack.push_back(EnemyCharacter9b);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter10b = new Enemy(EnemyTexture, Vector2(352, 96), 22);
-	GameObjectStack.push_back(EnemyCharacter10b);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter11b = new Enemy(EnemyTexture, Vector2(384, 96), 22);
-	GameObjectStack.push_back(EnemyCharacter11b);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter12b = new Enemy(EnemyTexture, Vector2(416, 96), 22);
-	GameObjectStack.push_back(EnemyCharacter12b);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter13b = new Enemy(EnemyTexture, Vector2(448, 96), 22);
-	GameObjectStack.push_back(EnemyCharacter13b);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter1c = new Enemy(EnemyTexture, Vector2(64, 160), 22);
-	GameObjectStack.push_back(EnemyCharacter1c);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter2c = new Enemy(EnemyTexture, Vector2(96, 160), 22);
-	GameObjectStack.push_back(EnemyCharacter2c);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter3c = new Enemy(EnemyTexture, Vector2(128, 160), 22);
-	GameObjectStack.push_back(EnemyCharacter3c);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter4c = new Enemy(EnemyTexture, Vector2(160, 160), 22);
-	GameObjectStack.push_back(EnemyCharacter4c);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter5c = new Enemy(EnemyTexture, Vector2(192, 160), 22);
-	GameObjectStack.push_back(EnemyCharacter5c);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter6c = new Enemy(EnemyTexture, Vector2(224, 160), 22);
-	GameObjectStack.push_back(EnemyCharacter6c);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter7c = new Enemy(EnemyTexture, Vector2(256, 160), 22);
-	GameObjectStack.push_back(EnemyCharacter7c);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter8c = new Enemy(EnemyTexture, Vector2(288, 160), 22);
-	GameObjectStack.push_back(EnemyCharacter8c);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter9c = new Enemy(EnemyTexture, Vector2(320, 160), 22);
-	GameObjectStack.push_back(EnemyCharacter9c);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter10c = new Enemy(EnemyTexture, Vector2(352, 160), 22);
-	GameObjectStack.push_back(EnemyCharacter10c);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter11c = new Enemy(EnemyTexture, Vector2(384, 160), 22);
-	GameObjectStack.push_back(EnemyCharacter11c);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter12c = new Enemy(EnemyTexture, Vector2(416, 160), 22);
-	GameObjectStack.push_back(EnemyCharacter12c);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter13c = new Enemy(EnemyTexture, Vector2(448, 160), 22);
-	GameObjectStack.push_back(EnemyCharacter13c);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter1d = new Enemy(EnemyTexture, Vector2(64, 224), 22);
-	GameObjectStack.push_back(EnemyCharacter1d);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter2d = new Enemy(EnemyTexture, Vector2(96, 224), 22);
-	GameObjectStack.push_back(EnemyCharacter2d);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter3d = new Enemy(EnemyTexture, Vector2(128, 224), 22);
-	GameObjectStack.push_back(EnemyCharacter3d);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter4d = new Enemy(EnemyTexture, Vector2(160, 224), 22);
-	GameObjectStack.push_back(EnemyCharacter4d);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter5d = new Enemy(EnemyTexture, Vector2(192, 224), 22);
-	GameObjectStack.push_back(EnemyCharacter5d);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter6d = new Enemy(EnemyTexture, Vector2(224, 224), 22);
-	GameObjectStack.push_back(EnemyCharacter6d);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter7d = new Enemy(EnemyTexture, Vector2(256, 224), 22);
-	GameObjectStack.push_back(EnemyCharacter7d);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter8d = new Enemy(EnemyTexture, Vector2(288, 224), 22);
-	GameObjectStack.push_back(EnemyCharacter8d);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter9d = new Enemy(EnemyTexture, Vector2(320, 224), 22);
-	GameObjectStack.push_back(EnemyCharacter9d);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter10d = new Enemy(EnemyTexture, Vector2(352, 224), 22);
-	GameObjectStack.push_back(EnemyCharacter10d);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter11d = new Enemy(EnemyTexture, Vector2(384, 224), 22);
-	GameObjectStack.push_back(EnemyCharacter11d);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter12d = new Enemy(EnemyTexture, Vector2(416, 224), 22);
-	GameObjectStack.push_back(EnemyCharacter12d);
-
-	//initiallised the enemy texture
-	EnemyTexture = new Texture();
-	// load the enemy texture
-	EnemyTexture->LoadImageFromFile("Assets/enemy-spritesheet-32x32-22.png", Renderer);
-	// construct as an Enemy using the same enemy texture
-	Enemy* EnemyCharacter13d = new Enemy(EnemyTexture, Vector2(448, 224), 22);
-	GameObjectStack.push_back(EnemyCharacter13d);
+	EChar = new Enemy(EnemyTexture, Vector2(465, 176), 1);
+	GameObjectStack.push_back(EChar);
 
 	// construct a Loss Zone
-	LossZone* Lose = new LossZone(Vector2(0.0f, 462.0f), Vector2(544.0f, 50.0f));
+	LossZone* Lose = new LossZone(Vector2(0.0f, 487.0f), Vector2(544.0f, 50.0f));
 	GameObjectStack.push_back(Lose);
 
 	// construct a border on the left side of the screen
 	LeftBorder* Left = new LeftBorder(Vector2(0.0f, 0.0f), Vector2(16.0f, 704.0f));
 	GameObjectStack.push_back(Left);
-
+	// above and below are different sized borders, despite being stated as the same size?
 	// construct a border on the right side of the screen
-	RightBorder* Right = new RightBorder(Vector2(0.0f, 0.0f), Vector2(528.0f, 704.0f));
+	RightBorder* Right = new RightBorder(Vector2(528.0f, 0.0f), Vector2(16.0f, 704.0f));
 	GameObjectStack.push_back(Right);
 
 	// find the music and load it

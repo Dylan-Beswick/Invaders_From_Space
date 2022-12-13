@@ -45,8 +45,8 @@ Game::Game()
 	Score = 0;
 	bIsGamePaused = false;
 	GameTimer = 0.0f;
-	PChara = nullptr;
-	EChara = nullptr;
+	tick = SDL_GetTicks() - LastUpdateTime;
+	DeltaTime = tick / 1000.0f;
 
 	//Initialise the subsystem in the SDL2 Framework
 	if (SDL_InitSubSystem(SDL_INIT_EVERYTHING) != 0) {
@@ -134,7 +134,7 @@ bool Game::Start()
 		// Start Detecting Input
 		UserInput = new Input(this);
 
-		// creating a starter game state
+		// creating a starter buffer state
 		BufferState* StarterGameState = new BufferState();
 		ChangeGameState(StarterGameState, 0);
 
@@ -165,6 +165,7 @@ void Game::Update()
 	// change the tick to seconds
 	float DeltaTime = tick / 1000.0f;
 
+	// while game is unpaused, count upwards on the GameTimer
 	if (!bIsGamePaused) {
 		GameTimer += DeltaTime;
 
@@ -184,7 +185,7 @@ void Game::Update()
 			// reduce the size of the vector
 			GameStates.pop_back();
 
-			// create a new play state
+			// create the first splashscreen state
 			SplashScreen1* NewSplash1Screen = new SplashScreen1();
 			// change the ID so this if condition doesn't run again
 			NewSplash1Screen->StateID = 1;
@@ -203,7 +204,7 @@ void Game::Update()
 			// reduce the size of the vector
 			GameStates.pop_back();
 
-			// create a new play state
+			// create a new buffer state
 			BufferState* NewBufferState = new BufferState();
 			// change the ID so this if condition doesn't run again
 			NewBufferState->StateID = 2;
@@ -222,7 +223,7 @@ void Game::Update()
 			// reduce the size of the vector
 			GameStates.pop_back();
 
-			// create a new play state
+			// create the second splashscreen state
 			SplashScreen2* NewSplash2Screen = new SplashScreen2();
 			// change the ID so this if condition doesn't run again
 			NewSplash2Screen->StateID = 3;
@@ -241,7 +242,7 @@ void Game::Update()
 			// reduce the size of the vector
 			GameStates.pop_back();
 
-			// create a new play state
+			// create a new buffer state
 			BufferState* NewBufferState = new BufferState();
 			// change the ID so this if condition doesn't run again
 			NewBufferState->StateID = 4;
@@ -260,7 +261,7 @@ void Game::Update()
 			// reduce the size of the vector
 			GameStates.pop_back();
 
-			// create a new play state
+			// create the third splashscreen state
 			SplashScreen3* NewSplash3Screen = new SplashScreen3();
 			// change the ID so this if condition doesn't run again
 			NewSplash3Screen->StateID = 5;
@@ -279,7 +280,7 @@ void Game::Update()
 			// reduce the size of the vector
 			GameStates.pop_back();
 
-			// create a new play state
+			// create a new buffer state
 			BufferState* NewBufferState = new BufferState();
 			// change the ID so this if condition doesn't run again
 			NewBufferState->StateID = 6;
@@ -298,7 +299,7 @@ void Game::Update()
 			// reduce the size of the vector
 			GameStates.pop_back();
 
-			// create a new play state
+			// create a new menu state
 			MenuState* NewMenuState = new MenuState();
 			// change the ID so this if condition doesn't run again
 			NewMenuState->StateID = 7;

@@ -2,10 +2,16 @@
 #include "SDL.h"
 #include "Game.h"
 
+bool Player::bPlayerFire = false;
+float Player::Speed = 0.0f;
+
 Player::Player(Texture* CharacterTexture, Vector2 Pos, int NumberOfFrames)
 	: Character::Character(CharacterTexture, Pos, NumberOfFrames)
 {
 	Tag = "Player";
+	Speed = 0.0f;
+	ShootTime = 0.0f;
+	SetMovementAxis(Vector2(0.0f, 0.0f));
 }
 
 Player::~Player()
@@ -24,43 +30,55 @@ void Player::ProcessInput(Input* UserInput)
 {
 	float MovementX = 0.0f;
 	float MovementY = 0.0f;
-	float Speed = 0.0f;
 
 	// check if A key is down
 	if (UserInput->IsKeyDown(SDL_SCANCODE_A)) {
-		Speed = 1000.0f;
-		MovementX = -1.0f;
+		MovementX = 1.0f;
 	}
 
 	// check if Left Arrow is down
 	if (UserInput->IsKeyDown(SDL_SCANCODE_LEFT)) {
-		Speed = 1000.0f;
 		MovementX = -1.0f;
 	}
 
 	// check if D key is down
 	if (UserInput->IsKeyDown(SDL_SCANCODE_D)) {
-		Speed = 1000.0f;
 		MovementX = 1.0f;
 	}
 
 	// check if Right Arrow is down
 	if (UserInput->IsKeyDown(SDL_SCANCODE_RIGHT)) {
-		Speed = 1000.0f;
 		MovementX = 1.0f;
 	}
 
 	// store the colliders overlapping out collider
 	vector<Collider*> OtherColliders = GetCollisions()[0]->GetOverlappingColliders();
 
+	SFX_Enter = Mix_LoadWAV("Assets/EntryAudio.wav");
+
 	if (UserInput->IsKeyDown(SDL_SCANCODE_SPACE)) {
-		// run through all the colliders we're overlapping
-		for (unsigned int i = 0; i < OtherColliders.size(); ++i) {
-			if (OtherColliders[i]->GetOwner()->Tag == "Enemy") {
-				// destroy enemy
-				Game::GetGameInstance()->Score += 100;
-				OtherColliders[i]->GetOwner()->DestroyGameObject();
+		
+		// limit how quickly the player is allowed to fire
+		if (Game::GetGameInstance()->GameTimer >= (ShootTime + PFireRate)) {
+			Player::bPlayerFire = true;
+			// play a sound to confirm shoot
+			if (SFX_Enter != nullptr) {
+				Mix_PlayChannel(-1, SFX_Enter, 0);
 			}
+			// "reset" shoot cooldown
+			ShootTime = Game::GetGameInstance()->GameTimer;
+		}
+	}
+	if (UserInput->IsKeyDown(SDL_SCANCODE_UP)) {
+
+		// limit how quickly the player is allowed to fire
+		if (Game::GetGameInstance()->GameTimer >= (ShootTime + 1.5)) {
+			Player::bPlayerFire = true;
+			if (SFX_Enter != nullptr) {
+				Mix_PlayChannel(-1, SFX_Enter, 0);
+			}
+			// "reset" shoot cooldown
+			ShootTime = Game::GetGameInstance()->GameTimer;
 		}
 	}
 
@@ -69,12 +87,19 @@ void Player::ProcessInput(Input* UserInput)
 		if ((*it)->GetOwner()->Tag == "Collectable") {
 			(*it)->GetOwner()->DestroyGameObject();
 		}
+		else if ((*it)->GetOwner()->Tag == "EBullet") {
+			// remove the enemy bullet object from the screen
+				(*it)->GetOwner()->DestroyGameObject();
+		}
+		else if ((*it)->GetOwner()->Tag == "BorderL" && (UserInput->IsKeyDown(SDL_SCANCODE_A) || UserInput->IsKeyDown(SDL_SCANCODE_LEFT))) {
+			// stop the player from moving Left when it reaches the border
+			MovementX = 0.0f;
+		}
+		else if ((*it)->GetOwner()->Tag == "BorderR" && (UserInput->IsKeyDown(SDL_SCANCODE_D) || UserInput->IsKeyDown(SDL_SCANCODE_RIGHT))) {
+			// stop the player from moving Right when it reaches the border
+			MovementX = 0.0f;
+		}
 	}
 
 	SetMovementAxis(Vector2(MovementX, MovementY));
-}
-
-void Player::SetSpeed(float Speed)
-{
-	this->Speed = Speed;
 }

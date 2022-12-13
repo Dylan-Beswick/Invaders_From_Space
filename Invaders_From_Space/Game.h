@@ -37,8 +37,7 @@ public:
 
 	float GameTimer;
 
-	Player* PChara;
-	Enemy* EChara;
+	float DeltaTime;
 
 private:
 	// these need to be private so we can't create non-instance versions of the game instance
@@ -65,6 +64,8 @@ private:
 
 	// how long since last update
 	unsigned int LastUpdateTime;
+
+	unsigned int tick;
 
 public:
 	// this will change the game state

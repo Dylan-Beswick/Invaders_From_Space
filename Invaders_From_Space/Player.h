@@ -1,6 +1,7 @@
 #pragma once
 #include "Character.h"
 #include "Vector2.h"
+#include "SDL_mixer.h"
 
 class Player :
     public Character
@@ -11,9 +12,17 @@ public:
 
     void Update(float DeltaTime) override;
     void ProcessInput(Input* UserInput) override;
-    void SetSpeed(float Speed);
+    static void SetSpeed(float NewSpeed);
+    static bool bPlayerFire;
+    static float Speed;
 
 private:
-    float Speed;
+
+    // cooldown for when the player can fire
+    float ShootTime;
+
+protected:
+    // shoot sound
+    Mix_Chunk* SFX_Enter;
 };
 

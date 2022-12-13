@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "Text.h"
 #include "Enemy.h"
+#include "Barrier.h"
 #include "SDL_mixer.h"
 
 class PlayState :
@@ -11,7 +12,7 @@ class PlayState :
 public:
 	PlayState();
 
-	virtual void Update(float DeltaTime) override;
+	virtual void Update(float DeltaTime, SDL_Renderer* Renderer);
 	virtual void Draw(SDL_Renderer* Renderer) override;
 	virtual void ProcessInput(Input* UserInput) override;
 
@@ -21,6 +22,10 @@ public:
 protected:
 	// store a pointer to the player game character
 	Player* PChar;
+	// store a pointer to the enemy game character
+	Enemy* EChar;
+	// store a pointer to the barrier entity
+	Barrier* BChar;
 
 	// store the text for the players position
 	Text* TXT_PPosition;
